@@ -1,3 +1,4 @@
+//@formatter:off
 /*
  * MIT License
  *
@@ -613,3 +614,29 @@ DS18B20_ERROR ds18b20_check_for_parasite_power(const OneWireBus * bus, bool * pr
     }
     return err;
 }
+
+//@formatter:on
+
+DS18B20_ERROR ds18b20_read_trigger( const DS18B20_Info *ds18b20_info, uint8_t *trigger_high, uint8_t *trigger_low ) {
+    Scratchpad read = { 0 };
+    if ( _read_scratchpad( ds18b20_info, &read, offsetof( Scratchpad, configuration ) + 1 ) != DS18B20_OK ) {
+        return DS18B20_ERROR_DEVICE;
+    }
+    *trigger_high = read.trigger_high;
+    *trigger_low = read.trigger_low;
+    return DS18B20_OK;
+}
+
+DS18B20_ERROR ds18b20_write_trigger( const DS18B20_Info *ds18b20_info, uint8_t trigger_high, uint8_t trigger_low ) {
+    Scratchpad scratchpad = { 0 };
+    if ( _read_scratchpad( ds18b20_info, &scratchpad, offsetof( Scratchpad, configuration ) + 1 ) != DS18B20_OK ) {
+        return DS18B20_ERROR_DEVICE;
+    }
+    scratchpad.trigger_high = trigger_high;
+    scratchpad.trigger_low = trigger_low;
+    if ( _write_scratchpad( ds18b20_info, &scratchpad, false ) != DS18B20_OK ) {
+        return DS18B20_ERROR_DEVICE;
+    }
+    return DS18B20_OK;
+}
+
